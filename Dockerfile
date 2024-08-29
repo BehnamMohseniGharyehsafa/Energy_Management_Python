@@ -1,10 +1,7 @@
-# Start with a minimal Ubuntu base image
-FROM ubuntu:20.04
+# Start with the Docker image for EnergyPlus from NREL
+FROM nrel/energyplus:23.2.0
 
-# Set environment variables to avoid user interaction during package installations
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Install system dependencies
+# Install system dependencies needed for Ruby and Python
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     curl \
@@ -20,19 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Ruby 2.7 from the official link
-WORKDIR /tmp
-RUN wget https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.0.tar.gz && \
-    tar -xzf ruby-2.7.0.tar.gz && \
-    cd ruby-2.7.0 && \
-    ./configure && make && make install && \
-    cd / && rm -rf /tmp/ruby-2.7.0 /tmp/ruby-2.7.0.tar.gz
-
-# Install EnergyPlus 23.2.0 from the official link
-RUN wget https://github.com/NREL/EnergyPlus/releases/download/v23.2.0/EnergyPlus-23.2.0-7636e6b3e9-Linux-Ubuntu22.04-x86_64.sh -O /tmp/EnergyPlus.sh && \
-    chmod +x /tmp/EnergyPlus.sh && \
-    echo "y" | /tmp/EnergyPlus.sh && \
-    rm /tmp/EnergyPlus.sh
+# Use the Ruby Docker image to install Ruby 2.7
+COPY --from=ruby:2.7 /usr/local/ /usr/local/
 
 # Install Python dependencies and Jupyter
 RUN pip3 install --no-cache-dir \
