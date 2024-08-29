@@ -20,7 +20,7 @@ RUN wget https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.0.tar.gz -O /tmp/ruby
     ./configure && make && make install && cd / && rm -rf /tmp/ruby/ruby-2.7.0 /tmp/ruby-2.7.0.tar.gz
 
 # Install Python libraries
-RUN pip3 install jupyter openstudio pyenergyplus esoreader pandas plotly
+RUN pip3 install jupyter openstudio pyenergyplus-lbnl esoreader pandas plotly
 
 # Expose port for Jupyter Notebook
 EXPOSE 8888
