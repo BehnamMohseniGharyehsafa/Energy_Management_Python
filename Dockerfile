@@ -1,5 +1,5 @@
 # Start with a minimal Ubuntu base image
-FROM ubuntu:20.04-minimal
+FROM ubuntu:20.04
 
 # Set environment variables to avoid user interaction during package installations
 ENV DEBIAN_FRONTEND=noninteractive
