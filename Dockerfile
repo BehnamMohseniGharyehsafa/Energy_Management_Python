@@ -1,26 +1,23 @@
-# Start with the Docker image for EnergyPlus from NREL
-FROM nrel/energyplus:23.2.0
+# Use the prebuilt Docker image for Ruby 2.7
+FROM ruby:2.7
 
-# Install system dependencies needed for Ruby and Python
+# Install system dependencies required for EnergyPlus and Python
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     curl \
-    build-essential \
-    libssl-dev \
-    libreadline-dev \
-    zlib1g-dev \
-    libsqlite3-dev \
+    python3-pip \
+    git \
     libxi6 \
     libxtst6 \
-    git \
-    ca-certificates \
-    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Use the Ruby Docker image to install Ruby 2.7
-COPY --from=ruby:2.7 /usr/local/ /usr/local/
+# Use the prebuilt Docker image for EnergyPlus by pulling it directly
+RUN wget -qO- https://github.com/NREL/docker-energyplus/archive/refs/heads/main.tar.gz | tar xz -C /tmp && \
+    cd /tmp/docker-energyplus-main && \
+    ./build_docker_image.sh && \
+    rm -rf /tmp/docker-energyplus-main
 
-# Install Python dependencies and Jupyter
+# Install Python packages and Jupyter
 RUN pip3 install --no-cache-dir \
     jupyter \
     openstudio \
@@ -29,8 +26,15 @@ RUN pip3 install --no-cache-dir \
     pandas \
     plotly
 
+# Set the working directory for Jupyter and copy the notebook file
+WORKDIR /home/jovyan
+COPY Shoe_Box_Modeling_Final.ipynb /home/jovyan/
+
+# Debugging: List all files in the working directory to verify that everything is in place
+RUN ls -alh /home/jovyan/
+
 # Expose port for Jupyter Notebook
 EXPOSE 8888
 
-# Set command to start Jupyter Notebook
-CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+# Start Jupyter Notebook with no token for easier access
+CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''"]
