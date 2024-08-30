@@ -13,20 +13,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxtst6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Multi-stage build to copy EnergyPlus from its official Docker image
+# Use EnergyPlus Docker image to locate the correct files
 FROM nrel/energyplus:23.2.0@sha256:b9cef68f0c70a6ab396968ce897a8b65b33bce1b21f1577c376facd90be8bece as energyplus
 
-# Inspect to find the correct EnergyPlus installation path
-# Uncomment below if needed for debugging
-# RUN ls /usr/local
-
-# Copy EnergyPlus binaries and setup environment variables
+# Use multi-stage build to copy EnergyPlus binaries
 FROM ruby
-COPY --from=energyplus /usr/local/EnergyPlus /usr/local/EnergyPlus
+# Correct path based on the directory found in the container
+COPY --from=energyplus /EnergyPlus-23.2.0-7636e6b3e9-Linux-Ubuntu20.04-x86_64 /usr/local/EnergyPlus-23.2.0
 
 # Set EnergyPlus environment variables
-ENV PATH="/usr/local/EnergyPlus:/usr/local/EnergyPlus/bin:$PATH"
-ENV ENERGYPLUS_INSTALL_PATH="/usr/local/EnergyPlus"
+ENV PATH="/usr/local/EnergyPlus-23.2.0:/usr/local/EnergyPlus-23.2.0/bin:$PATH"
+ENV ENERGYPLUS_INSTALL_PATH="/usr/local/EnergyPlus-23.2.0"
 
 # Install Python dependencies and Jupyter
 RUN pip3 install --no-cache-dir \
