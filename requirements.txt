@@ -1,0 +1,6 @@
+openstudio==3.8.0
+pyenergyplus-lbnl==23.2.0
+esoreader==1.2.3
+pandas==2.1.4
+plotly==5.23.0
+numpy==1.26.0
